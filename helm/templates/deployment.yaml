@@ -55,7 +55,7 @@ spec:
             cpu: {{ .Values.deployment.resources.limits.cpu }}
         startupProbe:
           httpGet:
-            path: /
+            path: {{ .Values.deployment.startupProbe.path }}
             port: 8000
-          failureThreshold: 10
-          periodSeconds: 5
+          failureThreshold: {{ .Values.deployment.startupProbe.failureThreshold }}
+          periodSeconds: {{ .Values.deployment.startupProbe.periodSeconds }}

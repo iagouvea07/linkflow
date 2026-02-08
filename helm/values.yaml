@@ -13,6 +13,10 @@ deployment:
     limits:
       memory: 512Mi
       cpu: 500m
+  startupProbe:
+    path: /
+    failureThreshold: 10
+    periodSeconds: 5   
 
 statefulSet:
   name: linkflow-db
@@ -21,6 +25,8 @@ statefulSet:
   image:
     name: mysql
     version: 8.0
+  volumes:
+    storage: 1Gi
 
 service:
   deployment:
