@@ -6,7 +6,9 @@ import (
 	"fmt"
 	"net/http"
 	"sync"
+	"time"
 
+	"github.com/redis/go-redis/v9"
 	"github.com/speps/go-hashids/v2"
 )
 
@@ -23,7 +25,6 @@ type UrlEncoded struct {
 var current_position int
 var mu sync.Mutex
 
-
 func InitializePosition(db *sql.DB) error {
 	err := db.QueryRow("SELECT current_position FROM position").Scan(&current_position)
 
@@ -39,7 +40,7 @@ func InitializePosition(db *sql.DB) error {
 	return nil
 }
 
-func HandleEncode(db *sql.DB, url string, id uint64, w http.ResponseWriter) {
+func HandleEncode(db *sql.DB, rdb *redis.Client, url string, id uint64, w http.ResponseWriter) {
 	encoded := genHashId(id)
 
     data := UrlEncoded{
@@ -49,6 +50,11 @@ func HandleEncode(db *sql.DB, url string, id uint64, w http.ResponseWriter) {
     }
 
 	if _, err := db.Exec("INSERT INTO addresses (id, url, encoded) VALUES (?, ?, ?)", data.ID, data.URL, data.ENCODE); err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	if err := rdb.Set(ctx, "encode:" + data.ENCODE, data.URL, 1 * time.Hour).Err(); err != nil {
 		fmt.Println(err)
 		return
 	}
@@ -71,7 +77,7 @@ func genHashId(id uint64) string {
 }
 
 
-func HandleInsertUrl(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+func HandleInsertUrl(w http.ResponseWriter, r *http.Request, db *sql.DB, rdb *redis.Client) {
 	var data Url
 	err := json.NewDecoder(r.Body).Decode(&data)
 
@@ -109,5 +115,5 @@ func HandleInsertUrl(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	}
 
 	dataUrl := data.URL
-	HandleEncode(db, dataUrl, uint64(current_position), w)
+	HandleEncode(db, rdb, dataUrl, uint64(current_position), w)
 }

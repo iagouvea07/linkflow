@@ -6,7 +6,7 @@ services:
     container_name: linkflow_migration
     environment:
       DB_HOST: "db"
-      DB_SCHEMA: url
+      DB_SCHEMA: linkflow
       DB_USER: root
       DB_PASSWORD: 12345
     depends_on:
@@ -21,13 +21,16 @@ services:
       - "8080:8000"
     environment:
       DB_HOST: "db"
-      DB_SCHEMA: url
+      DB_SCHEMA: linkflow
       DB_USER: root
       DB_PASSWORD: 12345
       PORT: 8000
+      REDIS_HOST: cache:6379
     depends_on:
       migration:
         condition: service_completed_successfully
+      cache:
+        condition: service_started
   db:
     image: mysql:8.0
     container_name: mysql
@@ -41,3 +44,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+  cache:
+    container_name: redis
+    image: redis:7.4-alpine
+    ports:
+      - 6379:6379

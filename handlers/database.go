@@ -32,6 +32,6 @@ func InitDB() (*sql.DB, error){
         log.Fatal(err)
     }
 
-    fmt.Println("Connected to database")
+    fmt.Println("Connected to Database")
 	return db, nil
 }

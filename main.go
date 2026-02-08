@@ -21,6 +21,12 @@ func main() {
 		log.Fatal(err)
 	}
 
+	rdb, err := handlers.InitRedis()
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	if err = handlers.InitializePosition(db); err != nil {
 		return
 	}
@@ -30,11 +36,11 @@ func main() {
 	route.HandleFunc("/", HandleHealth).Methods("GET")
 	route.HandleFunc("/metrics", handlers.ExposePrometheusMetrics).Methods("GET")
 	route.HandleFunc("/insert", func(w http.ResponseWriter, r *http.Request) {
-		handlers.HandleInsertUrl(w, r, db) 
+		handlers.HandleInsertUrl(w, r, db, rdb) 
 	}).Methods("POST")
 
 	route.HandleFunc("/{any}", func(w http.ResponseWriter, r *http.Request) {
-		handlers.HandlerRedirect(db, r.URL.Path, w, r)
+		handlers.HandlerRedirect(db, rdb, r.URL.Path, w, r)
 	})
 
 	fmt.Println("API is running...")
