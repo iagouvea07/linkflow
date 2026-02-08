@@ -5,7 +5,8 @@ metadata:
 spec:
   replicas: 1
   selector:
-    app: {{ .Values.statefulSet.labels.app }}
+    matchLabels:
+      app: {{ .Values.statefulSet.labels.app }}
   template:
     metadata:
       labels:

@@ -13,12 +13,21 @@ spec:
         app: {{ .Values.deployment.labels.app }}
     spec:
       volumes:
-      - name: migration_files
+      - name: migration-files
         configMap:
-          configMapName: {{ .Values.configMap.name }}
+          name: {{ .Values.configMap.name }}
       initContainers:
-      - name: linkflow_migration
-        image: migration/migration
+      - name: wait-for-db
+        image: busybox:latest
+        envFrom:
+        - secretRef:
+            name: {{ .Values.secret.deployment.name }}
+        command:
+        - sh
+        - -c 
+        - until nc -vz $DB_HOST 3306; do sleep 2; done
+      - name: linkflow-migration
+        image: migrate/migrate
         envFrom:
         - secretRef:
             name: {{ .Values.secret.deployment.name }}
@@ -27,7 +36,7 @@ spec:
         - -c
         - migrate -path /migrations -database "mysql://${DB_USER}:${DB_PASSWORD}@tcp(${DB_HOST}:3306)/${DB_SCHEMA}" up
         volumeMounts:
-        - name: migration_files
+        - name: migration-files
           mountPath: /migrations
       containers:
       - name: linkflow
@@ -44,3 +53,9 @@ spec:
           limits:
             memory: {{ .Values.deployment.resources.limits.memory }}
             cpu: {{ .Values.deployment.resources.limits.cpu }}
+        startupProbe:
+          httpGet:
+            path: /
+            port: 8000
+          failureThreshold: 10
+          periodSeconds: 5

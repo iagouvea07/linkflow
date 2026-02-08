@@ -4,7 +4,7 @@ deployment:
     app: linkflow
   replicas: 1
   image:
-    name: iagouvea07/linkflow
+    name: iagouvea/linkflow
     version: latest
   resources:
     requests:
@@ -37,7 +37,7 @@ secret:
   deployment:
     name: linkflow-secrets
     stringData:
-      DB_HOST: linkflow-mysql-svc
+      DB_HOST: linkflow-db-svc
       DB_SCHEMA: linkflow
       DB_USER: root
       DB_PASSWORD: 12345

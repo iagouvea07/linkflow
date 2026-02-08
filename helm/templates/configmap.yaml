@@ -2,9 +2,8 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: {{ .Values.configMap.name }}
-spec:
-  data:
-    {{- range $path, $_ :=  .Files.Glob  "../../migrations/**.sql" }}
-    {{ $path | trimPrefix "../../migrations/" }}: |- 
-  {{ $.Files.Get $path | indent 4 }}
-    {{ end }}
+data:
+  {{- range $path, $_ := .Files.Glob "migrations/**.sql" }}
+  {{ base $path }}: |-
+{{ $.Files.Get $path | indent 4 }}
+  {{- end }}
