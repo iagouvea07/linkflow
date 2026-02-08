@@ -19,14 +19,22 @@ deployment:
     periodSeconds: 5   
 
 statefulSet:
-  name: linkflow-db
-  labels:
-    app: mysql
-  image:
-    name: mysql
-    version: 8.0
-  volumes:
-    storage: 1Gi
+  db:
+    name: linkflow-db
+    labels:
+      app: mysql
+    image:
+      name: mysql
+      version: 8.0
+    volumes:
+      storage: 1Gi
+  cache:
+    name: linkflow-cache
+    labels:
+      app: redis
+    image:
+      name: redis
+      version: 7.4-alpine
 
 service:
   deployment:
@@ -35,9 +43,14 @@ service:
     port: 80
 
   statefulSet:
-    name: linkflow-db-svc
-    type: ClusterIP
-    port: 3306
+    db:
+      name: linkflow-db-svc
+      type: ClusterIP
+      port: 3306
+    cache:
+      name: linkflow-cache-svc
+      type: ClusterIP
+      port: 6379
 
 secret:
   deployment:
@@ -47,6 +60,7 @@ secret:
       DB_SCHEMA: linkflow
       DB_USER: root
       DB_PASSWORD: 12345
+      REDIS_HOST: linkflow-cache-svc:6379
   statefulSet:
     name: mysql-secrets
     stringData:

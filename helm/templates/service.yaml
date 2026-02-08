@@ -14,12 +14,25 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Values.service.statefulSet.name }}
+  name: {{ .Values.service.statefulSet.db.name }}
 spec:
-  type: {{ .Values.service.statefulSet.type }}
+  type: {{ .Values.service.statefulSet.db.type }}
   selector:
-    app: {{ .Values.statefulSet.labels.app }}
+    app: {{ .Values.statefulSet.db.labels.app }}
   ports:
   - name: db
-    port: {{ .Values.service.statefulSet.port }}
+    port: {{ .Values.service.statefulSet.db.port }}
     targetPort: 3306
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.service.statefulSet.cache.name }}
+spec:
+  type: {{ .Values.service.statefulSet.cache.type }}
+  selector:
+    app: {{ .Values.statefulSet.cache.labels.app }}
+  ports:
+  - name: cache
+    port: {{ .Values.service.statefulSet.cache.port }}
+    targetPort: 6379
