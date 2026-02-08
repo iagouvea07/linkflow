@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.service.deployment.name }}
+spec:
+  type: {{ .Values.service.deployment.type }}
+  selector:
+    app: {{ .Values.deployment.labels.app }}
+  ports:
+  - name: http
+    port: {{ .Values.service.deployment.port }}
+    targetPort: 8000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.service.statefulSet.name }}
+spec:
+  type: {{ .Values.service.statefulSet.type }}
+  selector:
+    app: {{ .Values.statefulSet.labels.app }}
+  ports:
+  - name: db
+    port: {{ .Values.service.statefulSet.port }}
+    targetPort: 3306

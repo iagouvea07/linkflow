@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Values.statefulSet.name }}
+spec:
+  replicas: 1
+  selector:
+    app: {{ .Values.statefulSet.labels.app }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.statefulSet.labels.app }}
+    spec:
+      containers:
+      - name: mysql
+        image: "{{ .Values.statefulSet.image.name }}:{{ .Values.statefulSet.image.version }}"
+        ports:
+        - containerPort: 3306
+        envFrom:
+        - secretRef:
+            name: {{ .Values.secret.statefulSet.name }}

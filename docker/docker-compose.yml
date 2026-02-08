@@ -1,0 +1,43 @@
+services:
+  migration:
+    build: 
+      dockerfile: docker/migrations/Dockerfile
+      context: ..
+    container_name: linkflow_migration
+    environment:
+      DB_HOST: "db"
+      DB_SCHEMA: url
+      DB_USER: root
+      DB_PASSWORD: 12345
+    depends_on:
+      db:
+        condition: service_healthy
+  api:
+    build: 
+      dockerfile: docker/app/Dockerfile
+      context: ..
+    container_name: linkflow
+    ports:
+      - "8080:8000"
+    environment:
+      DB_HOST: "db"
+      DB_SCHEMA: url
+      DB_USER: root
+      DB_PASSWORD: 12345
+      PORT: 8000
+    depends_on:
+      migration:
+        condition: service_completed_successfully
+  db:
+    image: mysql:8.0
+    container_name: mysql
+    ports:
+      - 3306:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=12345
+      - MYSQL_DATABASE=linkflow
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p12345"]
+      interval: 5s
+      timeout: 5s
+      retries: 10

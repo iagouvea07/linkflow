@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.deployment.name }}
+spec:
+  replicas: {{ .Values.deployment.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.deployment.labels.app }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.deployment.labels.app }}
+    spec:
+      volumes:
+      - name: migration_files
+        configMap:
+          configMapName: {{ .Values.configMap.name }}
+      initContainers:
+      - name: linkflow_migration
+        image: migration/migration
+        envFrom:
+        - secretRef:
+            name: {{ .Values.secret.deployment.name }}
+        command: 
+        - sh
+        - -c
+        - migrate -path /migrations -database "mysql://${DB_USER}:${DB_PASSWORD}@tcp(${DB_HOST}:3306)/${DB_SCHEMA}" up
+        volumeMounts:
+        - name: migration_files
+          mountPath: /migrations
+      containers:
+      - name: linkflow
+        image: "{{ .Values.deployment.image.name }}:{{ .Values.deployment.image.version }}"
+        ports:
+        - containerPort: 8000
+        envFrom:
+        - secretRef:
+            name: {{ .Values.secret.deployment.name }}
+        resources:
+          requests:
+            memory: {{ .Values.deployment.resources.requests.memory }}
+            cpu: {{ .Values.deployment.resources.requests.cpu }}
+          limits:
+            memory: {{ .Values.deployment.resources.limits.memory }}
+            cpu: {{ .Values.deployment.resources.limits.cpu }}

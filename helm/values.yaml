@@ -1,0 +1,51 @@
+deployment:
+  name: linkflow-app
+  labels:
+    app: linkflow
+  replicas: 1
+  image:
+    name: iagouvea07/linkflow
+    version: latest
+  resources:
+    requests:
+      memory: 64Mi
+      cpu: 100m
+    limits:
+      memory: 512Mi
+      cpu: 500m
+
+statefulSet:
+  name: linkflow-db
+  labels:
+    app: mysql
+  image:
+    name: mysql
+    version: 8.0
+
+service:
+  deployment:
+    name: linkflow-app-svc
+    type: ClusterIP
+    port: 80
+
+  statefulSet:
+    name: linkflow-db-svc
+    type: ClusterIP
+    port: 3306
+
+secret:
+  deployment:
+    name: linkflow-secrets
+    stringData:
+      DB_HOST: linkflow-mysql-svc
+      DB_SCHEMA: linkflow
+      DB_USER: root
+      DB_PASSWORD: 12345
+  statefulSet:
+    name: mysql-secrets
+    stringData:
+      MYSQL_ROOT_PASSWORD: 12345
+      MYSQL_DATABASE: linkflow
+
+configMap:
+  name: migration-files
