@@ -20,3 +20,14 @@ spec:
         envFrom:
         - secretRef:
             name: {{ .Values.secret.statefulSet.name }}
+        volumeMounts:
+        - name: db-volume
+          mountPath: /var/lib/mysql
+  volumeClaimTemplates:
+  - metadata:
+      name: db-volume
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 1Gi

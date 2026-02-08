@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - main
+    paths:
+      - "handlers/**"
+      - "docker/**"
+      - "main.go"
     
 jobs:
   build:

@@ -25,7 +25,7 @@ statefulSet:
 service:
   deployment:
     name: linkflow-app-svc
-    type: ClusterIP
+    type: NodePort
     port: 80
 
   statefulSet:
