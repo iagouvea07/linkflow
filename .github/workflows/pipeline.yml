@@ -28,10 +28,18 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       
-      - name: Build And Push
+      - name: Build And Push (App)
         uses: docker/build-push-action@v6
         with:
           file: docker/app/Dockerfile
           context: .
           push: true
           tags: iagouvea/linkflow:latest
+
+      - name: Build And Push (Notification)
+        uses: docker/build-push-action@v6
+        with:
+          file: docker/notification/Dockerfile
+          context: .
+          push: true
+          tags: iagouvea/linkflow-notification:latest
