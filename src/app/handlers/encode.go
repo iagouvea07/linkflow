@@ -1,13 +1,14 @@
 package handlers
 
 import (
+	"api/modules"
+	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"sync"
 	"time"
-	"context"
 
 	"github.com/redis/go-redis/v9"
 	"github.com/speps/go-hashids/v2"
@@ -62,6 +63,9 @@ func HandleEncode(db *sql.DB, rdb *redis.Client, url string, id uint64, w http.R
 		return
 	}
 
+	dataByte, _ := json.Marshal(data)
+	modules.SendMessage(dataByte)
+	
     w.Header().Set("Content-Type", "application/json")
 
     err := json.NewEncoder(w).Encode(data)
